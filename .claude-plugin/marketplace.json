@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "claude-dev-team",
+  "version": "0.1.0",
+  "description": "A tiered engineering team for Claude Code: Opus as tech lead/PM with veto power, Sonnet as senior dev, Haiku as junior dev.",
+  "owner": {
+    "name": "YOUR_NAME"
+  },
+  "plugins": [
+    {
+      "name": "dev-team",
+      "description": "Opus leads as tech lead/PM: writes tickets, routes work to Sonnet (senior) or Haiku (junior), approves or rejects their plans, and gates delivery on passing checks.",
+      "version": "0.1.0",
+      "source": "./plugins/dev-team",
+      "category": "development"
+    }
+  ]
+}

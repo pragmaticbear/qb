@@ -1,0 +1,10 @@
+{
+  "name": "dev-team",
+  "version": "0.1.0",
+  "description": "Opus as tech lead/PM with veto power over plans from a Sonnet senior dev and a Haiku junior dev. Plan gate + delivery gate, enforced by hooks.",
+  "author": {
+    "name": "YOUR_NAME"
+  },
+  "license": "MIT",
+  "keywords": ["agents", "subagents", "orchestration", "tech-lead", "code-review", "opus", "sonnet", "haiku"]
+}
