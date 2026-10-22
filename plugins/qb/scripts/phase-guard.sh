@@ -10,14 +10,31 @@ dt_init "$input"
 
 [ -f "$DT_STATE" ] || exit 0
 
+path=$(json_field "$input" file_path)
+[ -n "$path" ] || path=$(json_field "$input" notebook_path)
+
+# Developer subagents may never touch the lock or the gate's checks, in any
+# phase: rewriting state would unlock edits, rewriting checks would let a red
+# build through the delivery gate. Only the lead maintains those files.
+agent=$(json_field "$input" agent_type)
+case "$agent" in
+  *junior-dev*|*senior-dev*)
+    norm=$(printf '%s' "$path" | sed -E 's#/+#/#g; s#(/\.)+/#/#g; s#^(\./)+##')
+    case "$norm" in
+      */state|*/checks)
+        case "$norm" in
+          "$DT_STATE"|"$DT_CHECKS"|.claude/qb/*|*/.claude/qb/*|*..*)
+            printf '%s\n' "qb: developers cannot edit .claude/qb/state or .claude/qb/checks. Those belong to the tech lead. If a check is wrong, say so in your report." >&2
+            exit 2 ;;
+        esac ;;
+    esac ;;
+esac
+
 phase=$(state_get phase)
 case "$phase" in
   plan|review) ;;
   *) exit 0 ;;
 esac
-
-path=$(json_field "$input" file_path)
-[ -n "$path" ] || path=$(json_field "$input" notebook_path)
 
 # Always allow the lead to maintain the board, tickets, state and checks.
 # A ".." anywhere is never allowed through: it could escape the qb dir.

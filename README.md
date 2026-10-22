@@ -154,6 +154,11 @@ This is v0.1. Please open issues for anything that doesn't hold up.
 - **The lock is a guardrail, not a sandbox.** It blocks the file-editing
   tools. A developer could still write files through Bash (`sed -i`,
   `echo >`). The agent prompts tell them not to, and the lead reviews the diff.
+- **`.claude/qb/checks` runs as shell commands.** The gate executes each line
+  with `bash -c`, the same trust level as running `npm test`. Before using qb
+  in a repo you didn't write, read any committed `.claude/qb/checks` file (or
+  delete it). Developer subagents are blocked from editing `state` and
+  `checks` through the edit tools, but see the Bash caveat above.
 - **One ticket at a time.** The phase lock is global.
 - **Hook input fields.** The gate filters on the `agent_type` field of the
   SubagentStop input. If your Claude Code version doesn't send it, the gate
@@ -194,6 +199,10 @@ The most valuable contributions right now are transcripts of real runs,
 especially ones where the lead approved something it shouldn't have or
 bounced something it shouldn't have. Those drive changes to the review
 checklists and routing rubric.
+
+## Security
+
+Please report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
 
 ## License
 

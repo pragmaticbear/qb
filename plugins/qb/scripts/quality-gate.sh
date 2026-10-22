@@ -73,7 +73,8 @@ fi
 failed=""
 report=""
 passed=0
-tmp_out=$(mktemp 2>/dev/null || echo "/tmp/qb-gate.$$")
+# Never fall back to a predictable name in a shared /tmp (symlink races).
+tmp_out=$(mktemp 2>/dev/null) || tmp_out="$DT_DIR/gate.tmp.$$"
 for cmd in "${CHECKS[@]}"; do
   if $TO bash -c "$cmd" >"$tmp_out" 2>&1; then
     passed=$((passed + 1))

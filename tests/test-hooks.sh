@@ -9,8 +9,9 @@ PASS=0; FAIL=0
 ok()   { PASS=$((PASS+1)); printf '  ok   %s\n' "$1"; }
 bad()  { FAIL=$((FAIL+1)); printf '  FAIL %s\n' "$1"; [ -n "${2:-}" ] && printf '       %s\n' "$2"; }
 
-guard() { # <file_path> -> sets RC, ERR
-  local json="{\"session_id\":\"t\",\"cwd\":\"$PROJ\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$1\",\"old_string\":\"a\",\"new_string\":\"b\"}}"
+guard() { # <file_path> [agent_type] -> sets RC, ERR
+  local extra=""; [ -n "${2:-}" ] && extra=",\"agent_type\":\"$2\""
+  local json="{\"session_id\":\"t\",\"cwd\":\"$PROJ\"$extra,\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$1\",\"old_string\":\"a\",\"new_string\":\"b\"}}"
   ERR=$(printf '%s' "$json" | CLAUDE_PROJECT_DIR="$PROJ" bash "$SCRIPTS/phase-guard.sh" 2>&1 >/dev/null); RC=$?
 }
 gate() { # [agent_type] -> sets RC, OUT
@@ -50,6 +51,24 @@ run_suite() {
   state "phase: implement" "ticket: T-001" "attempts: 0"
   guard "$PROJ/src/app.js"
   [ $RC -eq 0 ] && ok "implement phase: edits allowed" || bad "implement phase: edits allowed" "rc=$RC"
+
+  for f in "$PROJ/.claude/qb/state" "$PROJ/.claude/qb/checks" ".claude/qb/checks" \
+           "./.claude/qb/state" "$PROJ/./.claude//qb/checks" "$PROJ/src/../.claude/qb/state"; do
+    guard "$f" senior-dev
+    [ $RC -eq 2 ] && ok "implement phase: developer blocked from $f" || bad "dev blocked from $f" "rc=$RC"
+  done
+  guard "$PROJ/.claude/qb/checks" qb:junior-dev
+  [ $RC -eq 2 ] && ok "namespaced developer blocked from checks" || bad "namespaced dev blocked from checks" "rc=$RC"
+  guard "$PROJ/.claude/qb/checks"
+  [ $RC -eq 0 ] && ok "lead may edit checks" || bad "lead may edit checks" "rc=$RC"
+  guard "$PROJ/src/state" senior-dev
+  [ $RC -eq 0 ] && ok "developer may edit an unrelated file named state" || bad "dev unrelated state file" "rc=$RC"
+
+  state "phase: plan" "ticket: T-001"
+  guard "$PROJ/.claude/qb/state" junior-dev
+  [ $RC -eq 2 ] && ok "plan phase: developer cannot unlock by editing state" || bad "plan phase dev state edit" "rc=$RC"
+  guard "$PROJ/.claude/qb/state"
+  [ $RC -eq 0 ] && ok "plan phase: lead may edit state" || bad "plan phase lead state edit" "rc=$RC"
 
   # --- quality gate ---
   state "phase: plan" "ticket: T-001"
