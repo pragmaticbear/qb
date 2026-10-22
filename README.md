@@ -1,3 +1,5 @@
+<p align="center"><img src="logo.png" alt="quarterback logo" width="160"></p>
+
 # quarterback (QB)
 
 A tiered engineering team for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview).
