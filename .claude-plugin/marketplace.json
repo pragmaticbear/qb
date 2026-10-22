@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "A tiered engineering team for Claude Code: Opus as tech lead/PM with veto power, Sonnet as senior dev, Haiku as junior dev.",
   "owner": {
-    "name": "YOUR_NAME"
+    "name": "pragmaticbear"
   },
   "plugins": [
     {
