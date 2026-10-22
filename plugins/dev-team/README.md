@@ -6,7 +6,7 @@ plan gate and a delivery gate enforced by hooks.
 Install:
 
 ```
-/plugin install dev-team --marketplace YOUR_GITHUB_USER/quarterback
+/plugin install dev-team --marketplace pragmaticbear/qb
 ```
 
 Start with `/dev-team:lead <what you want built>` on an Opus session.

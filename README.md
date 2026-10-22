@@ -43,13 +43,13 @@ gate, escalation rules, verdict formats) and hooks that enforce it.
 In Claude Code (2.1.275 or later):
 
 ```
-/plugin install dev-team --marketplace YOUR_GITHUB_USER/quarterback
+/plugin install dev-team --marketplace pragmaticbear/qb
 ```
 
 On older versions, add the marketplace first:
 
 ```
-/plugin marketplace add YOUR_GITHUB_USER/quarterback
+/plugin marketplace add pragmaticbear/qb
 /plugin install dev-team@claude-dev-team
 ```
 
