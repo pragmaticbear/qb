@@ -1,8 +1,8 @@
 ---
-description: Show the dev-team board, the current phase lock, and what's blocking
+description: Show the qb board, the current phase lock, and what's blocking
 ---
 
-Read `.claude/dev-team/board.md` and `.claude/dev-team/state` (either may be
+Read `.claude/qb/board.md` and `.claude/qb/state` (either may be
 missing). Report in a few lines:
 
 - Current ticket, assignee, and phase (or "no active run" if there's no state file)

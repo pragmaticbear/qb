@@ -1,5 +1,5 @@
 {
-  "description": "dev-team: phase lock (blocks code edits during plan/review) and delivery quality gate (runs project checks when a developer subagent stops). Both are inert unless .claude/dev-team/state exists.",
+  "description": "qb: phase lock (blocks code edits during plan/review) and delivery quality gate (runs project checks when a developer subagent stops). Both are inert unless .claude/qb/state exists.",
   "hooks": {
     "PreToolUse": [
       {

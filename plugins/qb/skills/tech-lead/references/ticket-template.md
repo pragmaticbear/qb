@@ -1,6 +1,6 @@
 # Ticket template
 
-Copy into `.claude/dev-team/tickets/T-###.md`.
+Copy into `.claude/qb/tickets/T-###.md`.
 
 ```markdown
 # T-###: <imperative title, e.g. "Add archive button to project list">

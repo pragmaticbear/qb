@@ -1,6 +1,6 @@
 ---
 name: tech-lead
-description: Run a tiered engineering team where you act as tech lead and PM, delegating to a senior-dev (Sonnet) and junior-dev (Haiku) subagent, approving or rejecting their plans, and gating delivery on passing checks. Use this whenever the user runs /dev-team:lead, asks you to "lead", "manage the team", "delegate to Sonnet/Haiku", "act as tech lead/PM", or wants a feature, refactor, or multi-step change built by subagents with review — even if they don't name the plugin.
+description: Run a tiered engineering team where you act as tech lead and PM, delegating to a senior-dev (Sonnet) and junior-dev (Haiku) subagent, approving or rejecting their plans, and gating delivery on passing checks. Use this whenever the user runs /qb:lead, asks you to "lead", "manage the team", "delegate to Sonnet/Haiku", "act as tech lead/PM", or wants a feature, refactor, or multi-step change built by subagents with review — even if they don't name the plugin.
 ---
 
 # Tech Lead / PM Playbook
@@ -45,8 +45,8 @@ acceptance criteria and an explicit list of what is out of scope. A ticket
 you can't write acceptance criteria for is not ready; it needs a spike or a
 question to the user.
 
-Create `.claude/dev-team/board.md` (the board) and one file per ticket at
-`.claude/dev-team/tickets/T-###.md`. Number tickets sequentially and never
+Create `.claude/qb/board.md` (the board) and one file per ticket at
+`.claude/qb/tickets/T-###.md`. Number tickets sequentially and never
 reuse numbers. Show the user the ticket list with assignees before starting,
 then proceed unless they object.
 
@@ -124,7 +124,7 @@ anything you'd want a human to look at before merging.
 
 ## Phase lock
 
-The file `.claude/dev-team/state` drives the plugin's hooks. Write it with
+The file `.claude/qb/state` drives the plugin's hooks. Write it with
 plain `key: value` lines:
 
 ```
@@ -136,7 +136,7 @@ attempts: 0
 
 | phase | Effect |
 |---|---|
-| `plan` | Edits to files outside `.claude/dev-team/` are blocked. Developers can read and explore but cannot change code. |
+| `plan` | Edits to files outside `.claude/qb/` are blocked. Developers can read and explore but cannot change code. |
 | `implement` | Edits allowed. When a subagent stops, the quality gate runs project checks and sends failures back. |
 | `review` | Edits blocked while you review the diff, so nothing changes under you. |
 | *(file absent)* | Hooks do nothing. Delete the file when you take over a ticket yourself or when the run ends. |
@@ -145,14 +145,14 @@ Reset `attempts: 0` whenever you move a ticket into `implement`. Run tickets
 one at a time; the lock is global, so parallel tickets aren't supported in
 this version.
 
-Project checks come from `.claude/dev-team/checks` (one shell command per
+Project checks come from `.claude/qb/checks` (one shell command per
 line). If that file doesn't exist, the gate auto-detects common test runners.
 If the project has no tests at all, say so in the board and lean harder on
 diff review; consider making "add tests" its own junior ticket.
 
 ## The board
 
-`.claude/dev-team/board.md` is the team's shared memory and the user's view
+`.claude/qb/board.md` is the team's shared memory and the user's view
 of progress. Keep it current after every verdict:
 
 ```markdown

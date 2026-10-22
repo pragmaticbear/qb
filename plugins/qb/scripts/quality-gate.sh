@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SubagentStop hook: when the dev-team phase lock is "implement", run the
+# SubagentStop hook: when the qb phase lock is "implement", run the
 # project's checks before a developer subagent may report done. Failing
 # output is sent back to the developer, up to max_attempts times; after that
 # the developer may stop and the state is marked "gate: failed" for the lead.
@@ -14,7 +14,7 @@ dt_init "$input"
 [ -f "$DT_STATE" ] || exit 0
 [ "$(state_get phase)" = "implement" ] || exit 0
 
-# Only gate dev-team developers when Claude Code tells us the agent type.
+# Only gate qb developers when Claude Code tells us the agent type.
 agent=$(json_field "$input" agent_type)
 if [ -n "$agent" ]; then
   case "$agent" in
@@ -62,18 +62,18 @@ fi
 [ ${#CHECKS[@]} -gt 0 ] || exit 0
 
 # ---- run checks -----------------------------------------------------------
-per_check_timeout="${DEV_TEAM_CHECK_TIMEOUT:-600}"
+per_check_timeout="${QB_CHECK_TIMEOUT:-600}"
 TO=""
 if command -v timeout >/dev/null 2>&1; then TO="timeout $per_check_timeout"
 elif command -v gtimeout >/dev/null 2>&1; then TO="gtimeout $per_check_timeout"
 else
-  printf '%s\n' "dev-team: no timeout/gtimeout on PATH; checks run without a per-check limit (install coreutils to enable DEV_TEAM_CHECK_TIMEOUT)" >&2
+  printf '%s\n' "qb: no timeout/gtimeout on PATH; checks run without a per-check limit (install coreutils to enable QB_CHECK_TIMEOUT)" >&2
 fi
 
 failed=""
 report=""
 passed=0
-tmp_out=$(mktemp 2>/dev/null || echo "/tmp/dev-team-gate.$$")
+tmp_out=$(mktemp 2>/dev/null || echo "/tmp/qb-gate.$$")
 for cmd in "${CHECKS[@]}"; do
   if $TO bash -c "$cmd" >"$tmp_out" 2>&1; then
     passed=$((passed + 1))
@@ -96,7 +96,7 @@ if [ -z "$failed" ]; then
   state_set attempts 0
   state_set gate passed
   printf '{"systemMessage": "%s"}\n' \
-    "$(json_escape "dev-team: quality gate passed for $ticket ($passed check(s)).")"
+    "$(json_escape "qb: quality gate passed for $ticket ($passed check(s)).")"
   exit 0
 fi
 
@@ -107,7 +107,7 @@ if [ ${#report} -gt 8000 ]; then
 fi
 
 max=$(state_get max_attempts)
-max="${DEV_TEAM_MAX_GATE_ATTEMPTS:-${max:-3}}"
+max="${QB_MAX_GATE_ATTEMPTS:-${max:-3}}"
 attempts=$(state_get attempts)
 case "$attempts" in ''|*[!0-9]*) attempts=0 ;; esac
 attempts=$((attempts + 1))
@@ -116,12 +116,12 @@ state_set attempts "$attempts"
 if [ "$attempts" -gt "$max" ]; then
   state_set gate failed
   printf '{"systemMessage": "%s"}\n' \
-    "$(json_escape "dev-team: quality gate still failing for $ticket after $max attempts (${failed}). The developer has been allowed to stop; the tech lead must reassign, rescope, or take over. State marked gate: failed.")"
+    "$(json_escape "qb: quality gate still failing for $ticket after $max attempts (${failed}). The developer has been allowed to stop; the tech lead must reassign, rescope, or take over. State marked gate: failed.")"
   exit 0
 fi
 
 state_set gate failing
-reason="dev-team quality gate FAILED for $ticket (attempt $attempts of $max). You cannot report DONE while checks fail. Failing: ${failed}.
+reason="qb quality gate FAILED for $ticket (attempt $attempts of $max). You cannot report DONE while checks fail. Failing: ${failed}.
 ${report}
 Fix the underlying cause (do not skip, delete, or weaken tests), re-run the checks yourself, then finish with your DONE report."
 printf '{"decision": "block", "reason": "%s"}\n' "$(json_escape "$reason")"

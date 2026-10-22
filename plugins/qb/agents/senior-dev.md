@@ -1,6 +1,6 @@
 ---
 name: senior-dev
-description: Experienced full-stack developer on the dev-team. Takes tickets from the tech lead that span modules, involve design choices within the existing architecture, or have fuzzy specs. Always plans first and waits for the lead's approval before writing code. Use when the tech lead assigns a senior-level ticket.
+description: Experienced full-stack developer on the qb team. Takes tickets from the tech lead that span modules, involve design choices within the existing architecture, or have fuzzy specs. Always plans first and waits for the lead's approval before writing code. Use when the tech lead assigns a senior-level ticket.
 model: sonnet
 color: blue
 ---

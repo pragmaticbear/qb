@@ -45,21 +45,21 @@ gate, escalation rules, verdict formats) and hooks that enforce it.
 In Claude Code (2.1.275 or later):
 
 ```
-/plugin install dev-team --marketplace pragmaticbear/qb
+/plugin install qb --marketplace pragmaticbear/qb
 ```
 
 On older versions, add the marketplace first:
 
 ```
 /plugin marketplace add pragmaticbear/qb
-/plugin install dev-team@claude-dev-team
+/plugin install qb@quarterback
 ```
 
 To try it from a local clone:
 
 ```
 /plugin marketplace add ./path/to/quarterback
-/plugin install dev-team@claude-dev-team
+/plugin install qb@quarterback
 ```
 
 ## Use
@@ -68,19 +68,19 @@ Start Claude Code on Opus, then hand the lead a task:
 
 ```
 claude --model opus
-> /dev-team:lead add project archiving: archive button in the list view, archived projects hidden by default, an "include archived" filter
+> /qb:lead add project archiving: archive button in the list view, archived projects hidden by default, an "include archived" filter
 ```
 
 The lead will ask about anything the code can't answer, show you the ticket
 list with assignees, then run each ticket through the gates. You'll see plans
-come back, verdicts go out, and a board at `.claude/dev-team/board.md` that
+come back, verdicts go out, and a board at `.claude/qb/board.md` that
 records every decision.
 
 | Command | What it does |
 |---|---|
-| `/dev-team:lead <task>` | Start (or resume) a run with Opus as lead |
-| `/dev-team:status` | Show the board, current phase, and anything blocking |
-| `/dev-team:reset` | Clear the phase lock (keeps the board and tickets) |
+| `/qb:lead <task>` | Start (or resume) a run with Opus as lead |
+| `/qb:status` | Show the board, current phase, and anything blocking |
+| `/qb:reset` | Clear the phase lock (keeps the board and tickets) |
 
 ## How it works
 
@@ -94,16 +94,16 @@ is allowed to `PUSHBACK` on tickets it thinks are wrong.
 coupling, blast radius, and testability. Hard rules override the score: Haiku
 never gets migrations, auth, payments, concurrency, or public APIs, and the
 lead keeps architecture decisions for itself. See
-[`routing.md`](plugins/dev-team/skills/tech-lead/references/routing.md).
+[`routing.md`](plugins/qb/skills/tech-lead/references/routing.md).
 
 **Escalation.** Two rejected revisions at one tier means stop coaching.
 The ticket moves up a tier or gets rescoped.
 
-**Enforcement.** The lead writes a phase lock to `.claude/dev-team/state`.
+**Enforcement.** The lead writes a phase lock to `.claude/qb/state`.
 Two hooks read it:
 
 - `phase-guard.sh` (PreToolUse): in `plan` and `review` phases, blocks
-  Edit/Write/MultiEdit/NotebookEdit on anything outside `.claude/dev-team/`.
+  Edit/Write/MultiEdit/NotebookEdit on anything outside `.claude/qb/`.
   Developers can explore but can't start coding before approval.
 - `quality-gate.sh` (SubagentStop): in the `implement` phase, runs your
   project's checks when a developer tries to finish. Failures go back to the
@@ -116,10 +116,10 @@ interfere with normal sessions.
 
 ## Configure
 
-**Checks.** Put one shell command per line in `.claude/dev-team/checks`:
+**Checks.** Put one shell command per line in `.claude/qb/checks`:
 
 ```
-# .claude/dev-team/checks
+# .claude/qb/checks
 pnpm test
 pnpm run lint
 pnpm run typecheck
@@ -134,12 +134,12 @@ lead's diff review carries the weight.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `DEV_TEAM_MAX_GATE_ATTEMPTS` | `3` | Failed gate runs before the developer is released (also settable as `max_attempts:` in the state file) |
-| `DEV_TEAM_CHECK_TIMEOUT` | `600` | Seconds per check command (needs `timeout`/`gtimeout` on PATH) |
+| `QB_MAX_GATE_ATTEMPTS` | `3` | Failed gate runs before the developer is released (also settable as `max_attempts:` in the state file) |
+| `QB_CHECK_TIMEOUT` | `600` | Seconds per check command (needs `timeout`/`gtimeout` on PATH) |
 
-**Version control.** Commit `.claude/dev-team/checks`. Whether to commit the
+**Version control.** Commit `.claude/qb/checks`. Whether to commit the
 board and tickets is up to you. They're a useful design record, but you may
-prefer to add `.claude/dev-team/state` and `.claude/dev-team/tickets/` to
+prefer to add `.claude/qb/state` and `.claude/qb/tickets/` to
 `.gitignore`.
 
 **Agent teams.** If you run with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`,
@@ -168,13 +168,13 @@ This is v0.1. Please open issues for anything that doesn't hold up.
 
 ```
 .claude-plugin/marketplace.json      marketplace manifest
-plugins/dev-team/
+plugins/qb/
   .claude-plugin/plugin.json         plugin manifest
   agents/senior-dev.md               Sonnet developer
   agents/junior-dev.md               Haiku developer
-  commands/lead.md                   /dev-team:lead
-  commands/status.md                 /dev-team:status
-  commands/reset.md                  /dev-team:reset
+  commands/lead.md                   /qb:lead
+  commands/status.md                 /qb:status
+  commands/reset.md                  /qb:reset
   skills/tech-lead/SKILL.md          the lead's playbook
   skills/tech-lead/references/       routing, ticket template, review checklists
   hooks/hooks.json                   hook registration

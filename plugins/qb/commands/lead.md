@@ -19,9 +19,9 @@ Start here:
 
 1. If you're not on an Opus-class model, mention once that `/model opus` is
    recommended for the lead seat, then continue.
-2. If `.claude/dev-team/state` already exists, a previous run didn't finish.
+2. If `.claude/qb/state` already exists, a previous run didn't finish.
    Read it and the board, tell the user where things stand, and ask whether
-   to resume or start fresh (`/dev-team:reset`).
+   to resume or start fresh (`/qb:reset`).
 3. Clarify the request (only what the code can't tell you), then write the
    tickets and board, show the user the ticket list with assignees, and
    begin the first ticket's plan gate.

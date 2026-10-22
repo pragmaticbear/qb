@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Exercises the dev-team hook scripts against a throwaway project.
+# Exercises the qb hook scripts against a throwaway project.
 # Usage: tests/test-hooks.sh        (runs with every available JSON parser)
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SCRIPTS="$ROOT/plugins/dev-team/scripts"
+SCRIPTS="$ROOT/plugins/qb/scripts"
 PASS=0; FAIL=0
 
 ok()   { PASS=$((PASS+1)); printf '  ok   %s\n' "$1"; }
@@ -18,12 +18,12 @@ gate() { # [agent_type] -> sets RC, OUT
   local json="{\"session_id\":\"t\",\"cwd\":\"$PROJ\",\"hook_event_name\":\"SubagentStop\"$extra}"
   OUT=$(printf '%s' "$json" | CLAUDE_PROJECT_DIR="$PROJ" bash "$SCRIPTS/quality-gate.sh" 2>/dev/null); RC=$?
 }
-state() { mkdir -p "$PROJ/.claude/dev-team"; printf '%s\n' "$@" > "$PROJ/.claude/dev-team/state"; }
-sget()  { grep -E "^$1:" "$PROJ/.claude/dev-team/state" | sed -E "s/^$1:[[:space:]]*//"; }
+state() { mkdir -p "$PROJ/.claude/qb"; printf '%s\n' "$@" > "$PROJ/.claude/qb/state"; }
+sget()  { grep -E "^$1:" "$PROJ/.claude/qb/state" | sed -E "s/^$1:[[:space:]]*//"; }
 
 run_suite() {
   PROJ=$(mktemp -d)
-  echo "== parser: ${DEV_TEAM_FORCE_PARSER:-auto} =="
+  echo "== parser: ${QB_FORCE_PARSER:-auto} =="
 
   # --- phase guard ---
   guard "$PROJ/src/app.js"
@@ -34,14 +34,14 @@ run_suite() {
   [ $RC -eq 2 ] && ok "plan phase: source edit blocked (exit 2)" || bad "plan phase: source edit blocked" "rc=$RC"
   case "$ERR" in *T-001*PLAN*) ok "plan phase: reason names ticket and phase";; *) bad "plan phase reason" "$ERR";; esac
 
-  guard "$PROJ/.claude/dev-team/board.md"
+  guard "$PROJ/.claude/qb/board.md"
   [ $RC -eq 0 ] && ok "plan phase: board edit allowed" || bad "plan phase: board edit allowed" "rc=$RC"
 
-  guard "$PROJ/pkg/.claude/dev-team/notes.md"
-  [ $RC -eq 2 ] && ok "plan phase: dev-team dir outside project root still blocked" || bad "plan phase: foreign dev-team dir blocked" "rc=$RC"
+  guard "$PROJ/pkg/.claude/qb/notes.md"
+  [ $RC -eq 2 ] && ok "plan phase: qb dir outside project root still blocked" || bad "plan phase: foreign qb dir blocked" "rc=$RC"
 
-  guard "$PROJ/.claude/dev-team/../../src/app.js"
-  [ $RC -eq 2 ] && ok "plan phase: traversal through dev-team dir still blocked" || bad "plan phase: traversal blocked" "rc=$RC"
+  guard "$PROJ/.claude/qb/../../src/app.js"
+  [ $RC -eq 2 ] && ok "plan phase: traversal through qb dir still blocked" || bad "plan phase: traversal blocked" "rc=$RC"
 
   state "phase: review" "ticket: T-001"
   guard "$PROJ/src/app.js"
@@ -53,17 +53,17 @@ run_suite() {
 
   # --- quality gate ---
   state "phase: plan" "ticket: T-001"
-  printf 'false\n' > "$PROJ/.claude/dev-team/checks"
+  printf 'false\n' > "$PROJ/.claude/qb/checks"
   gate senior-dev
   [ $RC -eq 0 ] && [ -z "$OUT" ] && ok "gate inert outside implement phase" || bad "gate inert outside implement" "$OUT"
 
   state "phase: implement" "ticket: T-002" "attempts: 0" "max_attempts: 2"
-  printf '# comment\n\necho all good\ntrue\n' > "$PROJ/.claude/dev-team/checks"
+  printf '# comment\n\necho all good\ntrue\n' > "$PROJ/.claude/qb/checks"
   gate senior-dev
   case "$OUT" in *'"systemMessage"'*passed*) ok "gate passes when checks pass";; *) bad "gate pass" "$OUT";; esac
   [ "$(sget gate)" = passed ] && ok "state marked gate: passed" || bad "gate: passed in state"
 
-  printf 'echo "boom: \\"quoted\\" \t tab" ; exit 3\n' > "$PROJ/.claude/dev-team/checks"
+  printf 'echo "boom: \\"quoted\\" \t tab" ; exit 3\n' > "$PROJ/.claude/qb/checks"
   gate junior-dev
   case "$OUT" in *'"decision": "block"'*) ok "gate blocks on failure";; *) bad "gate block" "$OUT";; esac
   if printf '%s' "$OUT" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["decision"]=="block" and "boom" in d["reason"] and "attempt 1 of 2" in d["reason"]' 2>/dev/null; then
@@ -79,11 +79,11 @@ run_suite() {
 
   state "phase: implement" "ticket: T-003" "attempts: 0"
   gate Explore
-  [ -z "$OUT" ] && ok "non-dev-team subagent ignored" || bad "non-dev subagent ignored" "$OUT"
-  gate "dev-team:senior-dev"
-  case "$OUT" in *block*) ok "namespaced agent type (dev-team:senior-dev) gated";; *) bad "namespaced agent" "$OUT";; esac
+  [ -z "$OUT" ] && ok "non-qb subagent ignored" || bad "non-dev subagent ignored" "$OUT"
+  gate "qb:senior-dev"
+  case "$OUT" in *block*) ok "namespaced agent type (qb:senior-dev) gated";; *) bad "namespaced agent" "$OUT";; esac
 
-  rm "$PROJ/.claude/dev-team/checks"
+  rm "$PROJ/.claude/qb/checks"
   state "phase: implement" "ticket: T-004" "attempts: 0"
   gate senior-dev
   [ -z "$OUT" ] && ok "no checks and nothing detected: gate stays out of the way" || bad "no checks" "$OUT"
@@ -98,7 +98,7 @@ run_suite() {
 run_suite
 for p in python sed; do
   if [ "$p" = python ] && ! command -v python3 >/dev/null; then continue; fi
-  DEV_TEAM_FORCE_PARSER=$p run_suite
+  QB_FORCE_PARSER=$p run_suite
 done
 
 echo

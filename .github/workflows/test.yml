@@ -11,7 +11,7 @@ jobs:
       - name: Validate JSON manifests
         run: |
           python3 -m json.tool .claude-plugin/marketplace.json > /dev/null
-          python3 -m json.tool plugins/dev-team/.claude-plugin/plugin.json > /dev/null
-          python3 -m json.tool plugins/dev-team/hooks/hooks.json > /dev/null
+          python3 -m json.tool plugins/qb/.claude-plugin/plugin.json > /dev/null
+          python3 -m json.tool plugins/qb/hooks/hooks.json > /dev/null
       - name: Hook tests (all parsers)
         run: bash tests/test-hooks.sh

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Shared helpers for dev-team hooks. Portable to bash 3.2 (macOS default).
+# Shared helpers for qb hooks. Portable to bash 3.2 (macOS default).
 
 # Read a top-level string field from a JSON document on $1.
 # Prefers jq, then python3, then a best-effort sed fallback.
 json_field() {
-  local json="$1" field="$2" force="${DEV_TEAM_FORCE_PARSER:-}"
+  local json="$1" field="$2" force="${QB_FORCE_PARSER:-}"
   if { [ -z "$force" ] || [ "$force" = jq ]; } && command -v jq >/dev/null 2>&1; then
     printf '%s' "$json" | jq -r --arg f "$field" '
       def find($f): (.[$f]? // .tool_input[$f]? // empty);
@@ -52,7 +52,7 @@ dt_init() {
     cwd=$(json_field "$input" cwd)
     DT_ROOT="${cwd:-$PWD}"
   fi
-  DT_DIR="$DT_ROOT/.claude/dev-team"
+  DT_DIR="$DT_ROOT/.claude/qb"
   DT_STATE="$DT_DIR/state"
   DT_CHECKS="$DT_DIR/checks"
 }
