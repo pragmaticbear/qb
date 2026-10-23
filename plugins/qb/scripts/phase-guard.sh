@@ -221,7 +221,7 @@ if [ "$(json_field "$input" tool_name)" = Bash ]; then
   # ponytail: a path built at runtime (D=.cla; rm ${D}ude, globs) is not seen.
   case "$(json_field "$input" agent_type)" in
     *junior-dev*|*senior-dev*)
-      rel=${cmd//[\'\"\\]/}; rel=${rel//"$DT_ROOT"/}
+      rel=${cmd//[\'\"\\]/}; rel=${rel//$'\n'/}; rel=${rel//$'\r'/}; rel=${rel//"$DT_ROOT"/}   # a backslash-newline continuation must not split ".claude"
       case "$rel" in
         *.claude*)
           if [ -n "$undecoded" ] || ! bash_readonly "$cmd"; then

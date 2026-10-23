@@ -208,7 +208,8 @@ run_suite() {
              'rm -rf .cla""ude/qb/state' "{rm,-rf,.claude}" "sudo -u root tee .claude/qb/state" \
              "python3 -c 'import os; os.remove(\".claude/qb/state\")'" "git rm -r .claude" \
              'echo "`echo \`cp a .claude/qb/state\``"' 'echo `echo \`rm .claude/qb/state\``' \
-             'echo "`echo "\`cp a .claude/qb/state\`"`"' $'cat <<EOF\n$(cp a .claude/qb/state)\nEOF'; do
+             'echo "`echo "\`cp a .claude/qb/state\`"`"' $'cat <<EOF\n$(cp a .claude/qb/state)\nEOF' \
+             $'rm .clau\\\nde/qb/state' $'cp a .clau\\\nde/qb/checks' $'echo x > .cl\\\naude/qb/state' $'rm -rf .cla\\\r\nude'; do
       blk "$b" "$d"
     done
     alw "cat .claude/qb/state" "$d"
