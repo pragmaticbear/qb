@@ -27,8 +27,17 @@ if v is not None:
 ' "$field" 2>/dev/null
     return 0
   fi
-  printf '%s' "$json" | tr '\n' ' ' \
-    | sed -n "s/.*\"$field\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -n1
+  # Last resort. The value regex accepts escaped characters so an escaped quote
+  # does not truncate the field (a truncated command would fail open in the
+  # Bash guard); then the common JSON escapes are decoded. \u003e, \u003c and
+  # \u0026 are decoded; phase-guard.sh fails closed on any other \u left over.
+  local v bs='\' q='"' nl=$'\n' ph=$'\001' fs=/ gt='>' lt='<' am='&'
+  v=$(printf '%s' "$json" | tr '\n' ' ' \
+    | sed -nE "s/.*\"$field\"[[:space:]]*:[[:space:]]*\"(([^\"\\\\]|\\\\.)*)\".*/\\1/p" | head -n1)
+  v=${v//"$bs$bs"/$ph}; v=${v//"$bs$q"/$q}; v=${v//"$bs$fs"/$fs}  # fs in a variable: bash 3.2 reads a quoted / in ${v//p/r} as the delimiter
+  v=${v//"${bs}n"/$nl}; v=${v//"${bs}t"/$'\t'}
+  v=${v//"${bs}u003e"/$gt}; v=${v//"${bs}u003c"/$lt}; v=${v//"${bs}u0026"/$am}
+  printf '%s\n' "${v//"$ph"/$bs}"
 }
 
 # Escape a string for embedding in a JSON string literal.

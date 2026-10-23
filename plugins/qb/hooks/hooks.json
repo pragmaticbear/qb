@@ -1,9 +1,9 @@
 {
-  "description": "qb: phase lock (blocks code edits during plan/review) and delivery quality gate (runs project checks when a developer subagent stops). Both are inert unless .claude/qb/state exists.",
+  "description": "qb: phase lock (blocks code edits and write-shaped Bash during plan/review) and delivery quality gate (runs project checks when a developer subagent stops). Both are inert unless .claude/qb/state exists.",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
         "hooks": [
           {
             "type": "command",

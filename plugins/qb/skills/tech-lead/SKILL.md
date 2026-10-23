@@ -136,10 +136,14 @@ attempts: 0
 
 | phase | Effect |
 |---|---|
-| `plan` | Edits to files outside `.claude/qb/` are blocked. Developers can read and explore but cannot change code. |
+| `plan` | Edits to files outside `.claude/qb/` are blocked, and Bash runs only known read-only commands. Developers can read and explore but cannot change code. |
 | `implement` | Edits allowed. When a subagent stops, the quality gate runs project checks and sends failures back. |
-| `review` | Edits blocked while you review the diff, so nothing changes under you. |
+| `review` | Edits and non-read-only Bash blocked while you review the diff, so nothing changes under you. |
 | *(file absent)* | Hooks do nothing. Delete the file when you take over a ticket yourself or when the run ends. |
+
+The Bash lock applies to you too. In `plan` and `review`, maintain the
+board, tickets and state with the Write and Edit tools, not `cat >>` or
+`printf >`; a line of `.claude/qb/checks` may be run verbatim.
 
 Reset `attempts: 0` whenever you move a ticket into `implement`. Run tickets
 one at a time; the lock is global, so parallel tickets aren't supported in
