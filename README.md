@@ -103,8 +103,15 @@ The ticket moves up a tier or gets rescoped.
 Two hooks read it:
 
 - `phase-guard.sh` (PreToolUse): in `plan` and `review` phases, blocks
-  Edit/Write/MultiEdit/NotebookEdit on anything outside `.claude/qb/`.
-  Developers can explore but can't start coding before approval.
+  Edit/Write/MultiEdit/NotebookEdit on anything outside `.claude/qb/`, and
+  allows Bash only for known read-only commands (`ls`, `cat`, `grep`, `rg`,
+  `find` without `-exec`/`-delete`, `sed -n 'N,Mp'`, `git status/diff/log/show`,
+  and similar) with no output redirects. Anything else, including unknown
+  commands, interpreters, `sudo`/`env` prefixes and renamed binaries, is
+  blocked. A line of `.claude/qb/checks` may be run verbatim. Developers can
+  explore but can't start coding before approval. In every phase, developers
+  are also blocked from any non-read-only Bash that mentions `.claude/`
+  (the lock, the checks and the board belong to the lead).
 - `quality-gate.sh` (SubagentStop): in the `implement` phase, runs your
   project's checks when a developer tries to finish. Failures go back to the
   developer with the output tail. After `max_attempts` (default 3) the
@@ -152,8 +159,12 @@ The protocol is the same.
 This is v0.1. Please open issues for anything that doesn't hold up.
 
 - **The lock is a guardrail, not a sandbox.** It blocks the file-editing
-  tools. A developer could still write files through Bash (`sed -i`,
-  `echo >`). The agent prompts tell them not to, and the lead reviews the diff.
+  tools, and it allowlists Bash with a quote-aware word scan, not a shell
+  parser. Unknown commands fail closed, so the gap is false positives rather
+  than bypasses: `(( a > b ))`, `[[ a > b ]]`, writes to `/dev/stderr` and any
+  read-only tool not on the list are blocked in plan and review. The developer
+  fence on `.claude/` can't see paths built at runtime (`D=.cla; rm ${D}ude`).
+  The lead reviews the diff either way.
 - **`.claude/qb/checks` runs as shell commands.** The gate executes each line
   with `bash -c`, the same trust level as running `npm test`. Before using qb
   in a repo you didn't write, read any committed `.claude/qb/checks` file (or
