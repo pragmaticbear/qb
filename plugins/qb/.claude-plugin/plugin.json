@@ -1,6 +1,6 @@
 {
   "name": "qb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Opus as tech lead/PM with veto power over plans from a Sonnet senior dev and a Haiku junior dev. Plan gate + delivery gate, enforced by hooks.",
   "author": {
     "name": "pragmaticbear"
