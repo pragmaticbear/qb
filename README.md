@@ -2,13 +2,29 @@
 
 # quarterback (QB)
 
-A tiered engineering team for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview).
+A plugin for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview),
+Anthropic's AI coding assistant, that turns one AI into a small software team
+with a boss.
 
-**Opus** is the tech lead and PM. **Sonnet** is the senior full-stack dev.
-**Haiku** is the junior dev. Opus writes the tickets, routes each one to the
-cheapest developer who can do it well, and has real veto power: it can reject a
-plan, demand changes, reassign the ticket up a tier, or rescope it entirely.
-Developers can push back on bad tickets, and the lead has to re-evaluate.
+Claude comes in three sizes. **Opus** is the most capable and the most
+expensive. **Sonnet** is the mid-size workhorse. **Haiku** is small, fast and
+cheap. On its own, Claude Code uses one of them for everything. quarterback
+gives each one a job:
+
+- **Opus is the tech lead.** It talks to you, breaks the work into tickets,
+  and decides who does each one.
+- **Sonnet is the senior developer.** It takes the harder tickets.
+- **Haiku is the junior developer.** It takes the small, well-defined ones.
+
+Nobody writes code until the lead has approved their plan, and nobody can
+say "done" while the project's tests are failing. The lead reads the actual
+code before accepting it, and can send it back, hand the ticket to someone
+more senior, or rewrite the ticket. Developers can push back on a bad ticket,
+and the lead has to reconsider.
+
+The result costs less than running Opus on everything and is more careful
+than letting any single model work unsupervised. Every decision is written
+to a board file you can read afterwards.
 
 ```
 you ──► Opus (lead/PM)
