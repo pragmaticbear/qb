@@ -10,7 +10,7 @@
     {
       "name": "qb",
       "description": "Opus leads as tech lead/PM: writes tickets, routes work to Sonnet (senior) or Haiku (junior), approves or rejects their plans, and gates delivery on passing checks.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source": "./plugins/qb",
       "category": "development"
     }
